@@ -15,7 +15,7 @@
         <div class="card-body" style="flex:1;">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;overflow:hidden;">
                 <h3 style="font-size:17px;font-weight:600;line-height:1.5;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ topic.title }}</h3>
-                {% if topic.current_students >= topic.max_students %}<span class="badge badge-secondary" style="flex-shrink:0;">已满</span>{% else %}<span class="badge badge-success" style="flex-shrink:0;">可选</span>{% endif %}
+                {% if topic.total_occupied >= topic.max_students %}<span class="badge badge-secondary" style="flex-shrink:0;">已满</span>{% else %}<span class="badge badge-success" style="flex-shrink:0;">可选</span>{% endif %}
             </div>
             <p style="color:var(--text-secondary);font-size:14px;line-height:1.7;margin-bottom:20px;height:calc(1.7em * 4);overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;">{{ topic.description }}</p>
             <div style="display:flex;align-items:center;gap:12px;padding:16px;background:var(--bg-secondary);border-radius:12px;margin-bottom:16px;">
@@ -25,11 +25,11 @@
                     <div style="font-size:12px;color:var(--text-tertiary);">{{ topic.teacher.department|default:"指导教师" }}</div>
                 </div>
             </div>
-            <div style="display:flex;align-items:center;gap:20px;font-size:13px;color:var(--text-tertiary);"><span><i class="fas fa-users" style="margin-right:6px;"></i>{{ topic.current_students }}/{{ topic.max_students }} 人</span><span><i class="fas fa-clock" style="margin-right:6px;"></i>{{ topic.created_at|date:"m月d日" }}</span></div>
+            <div style="display:flex;align-items:center;gap:20px;font-size:13px;color:var(--text-tertiary);"><span><i class="fas fa-users" style="margin-right:6px;"></i>{{ topic.total_occupied }}/{{ topic.max_students }} 人</span><span><i class="fas fa-clock" style="margin-right:6px;"></i>{{ topic.created_at|date:"m月d日" }}</span></div>
         </div>
         <div class="card-footer" style="display:flex;gap:12px;">
             <a href="{% url 'topics:detail' topic.id %}" class="btn btn-secondary btn-sm" style="flex:1;"><i class="fas fa-eye"></i>查看详情</a>
-            {% if user.is_student %}{% if topic.id in selected_topic_ids %}<button type="button" class="btn btn-secondary btn-sm" style="flex:1;" onclick="showToast('您已申请过此题目')"><i class="fas fa-check"></i>已申请</button>{% elif topic.current_students < topic.max_students %}<a href="{% url 'selections:apply' topic.id %}" class="btn btn-primary btn-sm" style="flex:1;"><i class="fas fa-hand-pointer"></i>申请选题</a>{% endif %}{% endif %}
+            {% if user.is_student %}{% if topic.id in selected_topic_ids %}<button type="button" class="btn btn-secondary btn-sm" style="flex:1;" onclick="showToast('您已申请过此题目')"><i class="fas fa-check"></i>已申请</button>{% elif topic.total_occupied < topic.max_students %}<a href="{% url 'selections:apply' topic.id %}" class="btn btn-primary btn-sm" style="flex:1;"><i class="fas fa-hand-pointer"></i>申请选题</a>{% else %}<button type="button" class="btn btn-secondary btn-sm" style="flex:1;" disabled><i class="fas fa-lock"></i>名额已满</button>{% endif %}{% endif %}
         </div>
     </div>
     {% endfor %}

@@ -38,9 +38,23 @@ class Topic(models.Model):
         return self.title
     
     @property
+    def pending_count(self):
+        """待审批的申请数量"""
+        from selections.models import Selection
+        return Selection.objects.filter(
+            topic=self,
+            status=Selection.Status.PENDING
+        ).count()
+    
+    @property
+    def total_occupied(self):
+        """已占用名额（已通过 + 待审批）"""
+        return self.current_count + self.pending_count
+    
+    @property
     def available_slots(self):
         """剩余名额"""
-        return max(0, self.max_students - self.current_count)
+        return max(0, self.max_students - self.total_occupied)
     
     @property
     def is_available(self):
@@ -49,9 +63,9 @@ class Topic(models.Model):
     
     def update_status(self):
         """更新状态"""
-        if self.current_count >= self.max_students:
+        if self.total_occupied >= self.max_students:
             self.status = self.Status.FULL
-        elif self.status == self.Status.FULL and self.current_count < self.max_students:
+        elif self.status == self.Status.FULL and self.total_occupied < self.max_students:
             self.status = self.Status.OPEN
         self.save(update_fields=['status'])
     

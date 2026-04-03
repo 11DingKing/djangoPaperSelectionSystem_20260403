@@ -12,7 +12,7 @@
             <div class="card-body" style="padding:40px;">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:32px;">
                     <h1 style="font-size:26px;font-weight:700;line-height:1.4;color:var(--text-primary);">{{ topic.title }}</h1>
-                    {% if topic.current_students >= topic.max_students %}
+                    {% if topic.total_occupied >= topic.max_students %}
                     <span class="badge badge-secondary" style="font-size:13px;padding:8px 16px;flex-shrink:0;">已满员</span>
                     {% else %}
                     <span class="badge badge-success" style="font-size:13px;padding:8px 16px;flex-shrink:0;">可申请</span>
@@ -59,8 +59,8 @@
             <div class="card-body" style="padding:0;">
                 <div style="display:flex;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border-color);">
                     <span style="color:var(--text-secondary);">选题人数</span>
-                    <span style="font-weight:600;color:{% if topic.current_students >= topic.max_students %}var(--danger){% else %}var(--success){% endif %};"></span>
-                        {{ topic.current_students }} / {{ topic.max_students }}
+                    <span style="font-weight:600;color:{% if topic.total_occupied >= topic.max_students %}var(--danger){% else %}var(--success){% endif %};">
+                        {{ topic.total_occupied }} / {{ topic.max_students }}
                     </span>
                 </div>
                 <div style="display:flex;justify-content:space-between;padding:16px 24px;">
@@ -80,7 +80,7 @@
                         <div style="font-size:13px;color:var(--text-secondary);">请等待教师审批</div>
                     </div>
                 </div>
-                {% elif topic.current_students >= topic.max_students %}
+                {% elif topic.total_occupied >= topic.max_students %}
                 <div style="background:var(--warning-bg);border-radius:12px;padding:20px;display:flex;align-items:center;gap:14px;">
                     <i class="fas fa-exclamation-triangle" style="color:var(--warning);font-size:20px;"></i>
                     <div>
