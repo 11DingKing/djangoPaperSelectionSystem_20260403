@@ -1,0 +1,656 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}论文选题系统{% endblock %}</title>
+    <link
+      href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+        --bg-hover: #e2e8f0;
+        --border-color: #e2e8f0;
+        --border-light: #cbd5e1;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-tertiary: #94a3b8;
+        --accent: #6366f1;
+        --accent-light: #818cf8;
+        --accent-bg: #eef2ff;
+        --success: #10b981;
+        --success-bg: #ecfdf5;
+        --warning: #f59e0b;
+        --warning-bg: #fffbeb;
+        --danger: #ef4444;
+        --danger-bg: #fef2f2;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+        --shadow-md:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        --shadow-lg:
+          0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        --shadow-xl:
+          0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --navbar-height: 64px;
+      }
+      html {
+        height: 100%;
+      }
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        min-height: 100%;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        flex-direction: column;
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+        transition: all 0.2s;
+      }
+      a:hover {
+        color: var(--accent-light);
+      }
+      .navbar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border-color);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        padding: 0 32px;
+        height: var(--navbar-height);
+      }
+      .navbar-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+        font-size: 18px;
+        color: var(--text-primary) !important;
+      }
+      .navbar-brand .logo {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .nav-link {
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        color: var(--text-secondary) !important;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .nav-link:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary) !important;
+      }
+      .nav-user {
+        position: relative;
+      }
+      .user-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 6px 12px 6px 6px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .user-btn:hover {
+        border-color: var(--border-light);
+        box-shadow: var(--shadow-sm);
+      }
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .user-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+      .dropdown-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 8px;
+        min-width: 200px;
+        box-shadow: var(--shadow-xl);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.2s;
+      }
+      .nav-user:hover .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: var(--radius-sm);
+        color: var(--text-secondary);
+        font-size: 14px;
+        transition: all 0.15s;
+      }
+      .dropdown-item:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+      }
+      .dropdown-item.danger {
+        color: var(--danger);
+      }
+      .dropdown-item.danger:hover {
+        background: var(--danger-bg);
+      }
+      .dropdown-divider {
+        height: 1px;
+        background: var(--border-color);
+        margin: 8px 0;
+      }
+      .dropdown-header {
+        padding: 8px 12px;
+        font-size: 12px;
+        color: var(--text-tertiary);
+        font-weight: 500;
+      }
+      .main-wrapper {
+        flex: 1;
+        padding-top: var(--navbar-height);
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - var(--navbar-height));
+      }
+      main {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 40px 32px;
+        flex: 1;
+        width: 100%;
+      }
+      .page-header {
+        margin-bottom: 32px;
+      }
+      .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+      }
+      .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 16px;
+      }
+      .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: var(--text-tertiary);
+        margin-bottom: 24px;
+      }
+      .breadcrumb a {
+        color: var(--text-secondary);
+      }
+      .breadcrumb a:hover {
+        color: var(--accent);
+      }
+      .card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: all 0.3s;
+      }
+      .card:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--border-light);
+      }
+      .card-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+      }
+      .card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+      .card-body {
+        padding: 24px;
+      }
+      .card-footer {
+        padding: 16px 24px;
+        border-top: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: var(--radius-sm);
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        box-shadow: 0 2px 4px rgba(99, 102, 241, 0.4);
+      }
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        color: white;
+      }
+      .btn-secondary {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+      }
+      .btn-secondary:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+      }
+      .btn-success {
+        background: var(--success);
+        color: white;
+      }
+      .btn-success:hover {
+        background: #059669;
+        color: white;
+      }
+      .btn-danger {
+        background: var(--danger);
+        color: white;
+      }
+      .btn-danger:hover {
+        background: #dc2626;
+        color: white;
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--text-secondary);
+      }
+      .btn-ghost:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+      }
+      .btn-sm {
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+      .btn-lg {
+        padding: 14px 28px;
+        font-size: 16px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 50px;
+      }
+      .badge-success {
+        background: var(--success-bg);
+        color: var(--success);
+      }
+      .badge-warning {
+        background: var(--warning-bg);
+        color: var(--warning);
+      }
+      .badge-danger {
+        background: var(--danger-bg);
+        color: var(--danger);
+      }
+      .badge-info {
+        background: var(--accent-bg);
+        color: var(--accent);
+      }
+      .badge-secondary {
+        background: var(--bg-tertiary);
+        color: var(--text-secondary);
+      }
+      .form-group {
+        margin-bottom: 24px;
+      }
+      .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+      }
+      .form-label .required {
+        color: var(--danger);
+        margin-left: 4px;
+      }
+      .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 15px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        color: var(--text-primary);
+        transition: all 0.2s;
+      }
+      .form-control:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px var(--accent-bg);
+      }
+      .form-control::placeholder {
+        color: var(--text-tertiary);
+      }
+      textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+      }
+      .form-hint {
+        font-size: 13px;
+        color: var(--text-tertiary);
+        margin-top: 8px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 16px 20px;
+        text-align: left;
+      }
+      th {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+      }
+      td {
+        border-bottom: 1px solid var(--border-color);
+        font-size: 14px;
+      }
+      tr:hover td {
+        background: var(--bg-secondary);
+      }
+      .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+      }
+      .empty-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--bg-tertiary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        font-size: 32px;
+        color: var(--text-tertiary);
+      }
+      .empty-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .empty-desc {
+        color: var(--text-secondary);
+        font-size: 15px;
+        margin-bottom: 24px;
+      }
+      .toast-container {
+        position: fixed;
+        top: calc(var(--navbar-height) + 16px);
+        right: 24px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .toast {
+        background: var(--bg-primary);
+        border-radius: var(--radius-md);
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: var(--shadow-xl);
+        animation: slideIn 0.3s ease;
+        border-left: 4px solid var(--accent);
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      .toast-success {
+        border-left-color: var(--success);
+      }
+      .toast-error {
+        border-left-color: var(--danger);
+      }
+      .grid {
+        display: grid;
+        gap: 24px;
+      }
+      .grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      @media (max-width: 1024px) {
+        .grid-3 {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 768px) {
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .nav-links {
+          display: none;
+        }
+        main {
+          padding: 24px 16px;
+        }
+      }
+      .stat-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        text-align: center;
+      }
+      .stat-value {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .stat-label {
+        font-size: 14px;
+        color: var(--text-secondary);
+      }
+      footer {
+        border-top: 1px solid var(--border-color);
+        padding: 32px;
+        text-align: center;
+        color: var(--text-tertiary);
+        font-size: 14px;
+        background: var(--bg-primary);
+      }
+    </style>
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="navbar-inner">
+        <a href="/" class="navbar-brand">
+          <div class="logo"><i class="fas fa-graduation-cap"></i></div>
+          <span>论文选题系统</span>
+        </a>
+        {% if user.is_authenticated %}
+        <div class="nav-links">
+          {% if user.is_admin_user %}
+          <a href="{% url 'accounts:admin_dashboard' %}" class="nav-link"><i class="fas fa-tachometer-alt"></i>管理面板</a>
+          <a href="{% url 'accounts:admin_user_list' %}" class="nav-link"><i class="fas fa-users"></i>用户管理</a>
+          {% else %}
+          <a href="{% url 'topics:list' %}" class="nav-link"><i class="fas fa-compass"></i>浏览题目</a>
+          {% if user.is_teacher %}
+          <a href="{% url 'topics:teacher_list' %}" class="nav-link"><i class="fas fa-folder"></i>我的题目</a>
+          <a href="{% url 'selections:pending_list' %}" class="nav-link"><i class="fas fa-inbox"></i>待审批</a>
+          {% endif %}
+          {% if user.is_student %}
+          <a href="{% url 'selections:my_list' %}" class="nav-link"><i class="fas fa-file-alt"></i>我的申请</a>
+          {% endif %}
+          {% endif %}
+        </div>
+        <div class="nav-user">
+          <div class="user-btn">
+            <div class="user-avatar">
+              {{ user.name|default:user.username|slice:":1"|upper }}
+            </div>
+            <span class="user-name">{{ user.name|default:user.username }}</span>
+            <i
+              class="fas fa-chevron-down"
+              style="font-size: 10px; color: var(--text-tertiary)"
+            ></i>
+          </div>
+          <div class="dropdown-menu">
+            <div class="dropdown-header">
+              {% if user.is_teacher %}教师账号{% elif user.is_student %}学生账号{% else %}管理员{% endif %}
+            </div>
+            <a href="{% url 'accounts:profile' %}" class="dropdown-item"
+              ><i class="fas fa-user"></i>个人资料</a
+            >
+            <div class="dropdown-divider"></div>
+            <a href="{% url 'accounts:logout' %}" class="dropdown-item danger"
+              ><i class="fas fa-sign-out-alt"></i>退出登录</a
+            >
+          </div>
+        </div>
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm"
+          >登录系统</a
+        >
+        {% endif %}
+      </div>
+    </nav>
+    <div class="main-wrapper">
+      <div class="toast-container">
+        {% if messages %}{% for message in messages %}
+        <div
+          class="toast toast-{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}info{% endif %}"
+        >
+          <i
+            class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}times-circle{% else %}info-circle{% endif %}"
+            style="color:{% if message.tags == 'success' %}var(--success){% elif message.tags == 'error' %}var(--danger){% else %}var(--accent){% endif %};"
+          ></i>
+          <span>{{ message }}</span>
+        </div>
+        {% endfor %}{% endif %}
+      </div>
+      <main>{% block content %}{% endblock %}</main>
+      <footer>&copy; 2024 论文选题系统 Powered by Django</footer>
+    </div>
+    <script>
+      setTimeout(function () {
+        document.querySelectorAll(".toast").forEach(function (t) {
+          t.style.opacity = "0";
+          t.style.transform = "translateX(20px)";
+          setTimeout(function () {
+            t.remove();
+          }, 300);
+        });
+      }, 4000);
+    </script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

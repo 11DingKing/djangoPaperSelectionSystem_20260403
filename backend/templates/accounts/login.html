@@ -1,0 +1,74 @@
+﻿{% extends 'base.html' %}
+{% block title %}登录 - 论文选题系统{% endblock %}
+{% block extra_css %}
+<style>
+    html, body { height: 100%; overflow: hidden; }
+    body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .navbar, footer { display: none; }
+    .main-wrapper { padding-top: 0; height: 100vh; display: flex; align-items: center; justify-content: center; }
+    main { max-width: none; padding: 0; width: 100%; display: flex; align-items: center; justify-content: center; }
+    .login-container { display: flex; width: 900px; max-width: 95%; max-height: 90vh; background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+    .login-left { flex: 1; padding: 48px; display: flex; flex-direction: column; justify-content: center; overflow-y: auto; }
+    .login-logo { width: 48px; height: 48px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; margin-bottom: 24px; }
+    .login-title { font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+    .login-subtitle { color: #64748b; font-size: 15px; margin-bottom: 32px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 12px 14px; font-size: 15px; border: 2px solid #e5e7eb; border-radius: 10px; transition: all 0.2s; background: #f9fafb; box-sizing: border-box; }
+    .form-input:focus { outline: none; border-color: #6366f1; background: white; box-shadow: 0 0 0 4px rgba(99,102,241,0.1); }
+    .login-btn { width: 100%; padding: 14px; font-size: 15px; font-weight: 600; color: white; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s; margin-top: 4px; }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99,102,241,0.3); }
+    .login-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 12px 14px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+    .login-hint { margin-top: 24px; padding: 16px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .login-hint-title { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 10px; }
+    .login-hint-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #475569; margin-bottom: 6px; }
+    .login-hint-item:last-child { margin-bottom: 0; }
+    .login-hint-item code { background: #e0e7ff; color: #4338ca; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 12px; }
+    .login-right { width: 320px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 48px 32px; display: flex; flex-direction: column; justify-content: center; color: white; }
+    .login-right h3 { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+    .login-right p { font-size: 14px; opacity: 0.9; line-height: 1.6; margin-bottom: 24px; }
+    .feature-list { list-style: none; padding: 0; margin: 0; }
+    .feature-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; }
+    .feature-icon { width: 28px; height: 28px; background: rgba(255,255,255,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+    @media (max-width: 768px) { .login-right { display: none; } .login-container { max-width: 400px; } .login-left { padding: 32px 24px; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="login-container">
+    <div class="login-left">
+        <div class="login-logo"><i class="fas fa-graduation-cap"></i></div>
+        <h1 class="login-title">欢迎回来</h1>
+        <p class="login-subtitle">登录您的账号以继续使用系统</p>
+        {% if form.errors %}
+        <div class="login-error"><i class="fas fa-exclamation-circle"></i><span>用户名或密码错误，请重试</span></div>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">用户名</label>
+                <input type="text" name="username" class="form-input" placeholder="请输入用户名" required autofocus>
+            </div>
+            <div class="form-group">
+                <label class="form-label">密码</label>
+                <input type="password" name="password" class="form-input" placeholder="请输入密码" required>
+            </div>
+            <button type="submit" class="login-btn"><i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>登 录</button>
+        </form>
+        <div class="login-hint">
+            <div class="login-hint-title">测试账号</div>
+            <div class="login-hint-item"><i class="fas fa-user-shield" style="color:#f59e0b;width:16px;"></i><span style="display:inline-block;width:56px;">管理员：</span><code>admin</code> / <code>admin123</code></div>
+            <div class="login-hint-item"><i class="fas fa-chalkboard-teacher" style="color:#6366f1;width:16px;"></i><span style="display:inline-block;width:56px;">教师：</span><code>teacher1</code> / <code>123456</code></div>
+            <div class="login-hint-item"><i class="fas fa-user-graduate" style="color:#10b981;width:16px;"></i><span style="display:inline-block;width:56px;">学生：</span><code>student1</code> / <code>123456</code></div>
+        </div>
+    </div>
+    <div class="login-right">
+        <h3>论文选题系统</h3>
+        <p>高效便捷的论文选题平台，连接教师与学生，让学术选题更简单。</p>
+        <ul class="feature-list">
+            <li class="feature-item"><div class="feature-icon"><i class="fas fa-search"></i></div><span>浏览并选择感兴趣的论文题目</span></li>
+            <li class="feature-item"><div class="feature-icon"><i class="fas fa-paper-plane"></i></div><span>一键提交选题申请</span></li>
+            <li class="feature-item"><div class="feature-icon"><i class="fas fa-check-circle"></i></div><span>实时追踪审批状态</span></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

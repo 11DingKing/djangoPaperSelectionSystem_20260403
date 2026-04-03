@@ -1,0 +1,101 @@
+﻿{% extends 'base.html' %}
+{% block title %}{{ topic.title }} - 论文选题系统{% endblock %}
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'topics:list' %}"><i class="fas fa-arrow-left" style="margin-right:6px;"></i>返回列表</a>
+    <span>/</span>
+    <span>题目详情</span>
+</div>
+<div class="grid" style="grid-template-columns:1fr 380px;gap:32px;">
+    <div>
+        <div class="card">
+            <div class="card-body" style="padding:40px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:32px;">
+                    <h1 style="font-size:26px;font-weight:700;line-height:1.4;color:var(--text-primary);">{{ topic.title }}</h1>
+                    {% if topic.current_students >= topic.max_students %}
+                    <span class="badge badge-secondary" style="font-size:13px;padding:8px 16px;flex-shrink:0;">已满员</span>
+                    {% else %}
+                    <span class="badge badge-success" style="font-size:13px;padding:8px 16px;flex-shrink:0;">可申请</span>
+                    {% endif %}
+                </div>
+                <div style="margin-bottom:32px;">
+                    <h4 style="font-size:14px;font-weight:600;color:var(--text-tertiary);margin-bottom:16px;display:flex;align-items:center;">
+                        <i class="fas fa-align-left" style="margin-right:10px;color:var(--accent);"></i>题目描述
+                    </h4>
+                    <div style="color:var(--text-secondary);font-size:15px;line-height:1.9;white-space:pre-wrap;padding-left:26px;">{{ topic.description }}</div>
+                </div>
+                {% if topic.requirements %}
+                <div style="padding-top:32px;border-top:1px solid var(--border-color);">
+                    <h4 style="font-size:14px;font-weight:600;color:var(--text-tertiary);margin-bottom:16px;display:flex;align-items:center;">
+                        <i class="fas fa-tasks" style="margin-right:10px;color:var(--warning);"></i>要求说明
+                    </h4>
+                    <div style="color:var(--text-secondary);font-size:15px;line-height:1.9;white-space:pre-wrap;padding-left:26px;">{{ topic.requirements }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="card" style="margin-bottom:24px;">
+            <div class="card-header">
+                <span class="card-title"><i class="fas fa-user-tie" style="margin-right:8px;"></i>指导教师</span>
+            </div>
+            <div class="card-body">
+                <div style="display:flex;align-items:center;gap:16px;">
+                    <div style="width:64px;height:64px;background:linear-gradient(135deg,#f093fb,#f5576c);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:24px;font-weight:600;">
+                        {{ topic.teacher.name|default:topic.teacher.username|slice:":1"|upper }}
+                    </div>
+                    <div>
+                        <div style="font-size:18px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">{{ topic.teacher.name|default:topic.teacher.username }}</div>
+                        <div style="font-size:14px;color:var(--text-secondary);">{{ topic.teacher.department|default:"指导教师" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card" style="margin-bottom:24px;">
+            <div class="card-header">
+                <span class="card-title"><i class="fas fa-info-circle" style="margin-right:8px;"></i>题目信息</span>
+            </div>
+            <div class="card-body" style="padding:0;">
+                <div style="display:flex;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border-color);">
+                    <span style="color:var(--text-secondary);">选题人数</span>
+                    <span style="font-weight:600;color:{% if topic.current_students >= topic.max_students %}var(--danger){% else %}var(--success){% endif %};"></span>
+                        {{ topic.current_students }} / {{ topic.max_students }}
+                    </span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:16px 24px;">
+                    <span style="color:var(--text-secondary);">发布时间</span>
+                    <span style="font-weight:500;">{{ topic.created_at|date:"Y年m月d日" }}</span>
+                </div>
+            </div>
+        </div>
+        {% if user.is_student %}
+        <div class="card">
+            <div class="card-body">
+                {% if has_selected %}
+                <div style="background:var(--accent-bg);border-radius:12px;padding:20px;display:flex;align-items:center;gap:14px;">
+                    <i class="fas fa-info-circle" style="color:var(--accent);font-size:20px;"></i>
+                    <div>
+                        <div style="font-weight:600;color:var(--accent);margin-bottom:2px;">已提交申请</div>
+                        <div style="font-size:13px;color:var(--text-secondary);">请等待教师审批</div>
+                    </div>
+                </div>
+                {% elif topic.current_students >= topic.max_students %}
+                <div style="background:var(--warning-bg);border-radius:12px;padding:20px;display:flex;align-items:center;gap:14px;">
+                    <i class="fas fa-exclamation-triangle" style="color:var(--warning);font-size:20px;"></i>
+                    <div>
+                        <div style="font-weight:600;color:var(--warning);margin-bottom:2px;">名额已满</div>
+                        <div style="font-size:13px;color:var(--text-secondary);">该题目暂时无法申请</div>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'selections:apply' topic.id %}" class="btn btn-primary btn-lg" style="width:100%;">
+                    <i class="fas fa-hand-pointer"></i>申请选择此题目
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

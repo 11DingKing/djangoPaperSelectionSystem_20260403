@@ -1,0 +1,54 @@
+﻿{% extends 'base.html' %}
+{% block title %}申请选题 - 论文选题系统{% endblock %}
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'topics:list' %}">浏览题目</a>
+    <span>/</span>
+    <a href="{% url 'topics:detail' topic.id %}">{{ topic.title|truncatechars:20 }}</a>
+    <span>/</span>
+    <span>申请选题</span>
+</div>
+<div style="max-width:800px;margin:0 auto;">
+    <div class="page-header">
+        <h1 class="page-title">申请选题</h1>
+        <p class="page-subtitle">提交您的选题申请，等待教师审批</p>
+    </div>
+    <div class="card" style="margin-bottom:24px;">
+        <div class="card-body" style="padding:28px;">
+            <div style="display:flex;gap:20px;align-items:flex-start;">
+                <div style="width:56px;height:56px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fas fa-file-alt" style="font-size:24px;color:white;"></i>
+                </div>
+                <div style="flex:1;">
+                    <h3 style="font-size:18px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">{{ topic.title }}</h3>
+                    <p style="color:var(--text-secondary);font-size:14px;line-height:1.7;margin-bottom:16px;">{{ topic.description|truncatechars:150 }}</p>
+                    <div style="display:flex;align-items:center;gap:20px;font-size:13px;color:var(--text-tertiary);">
+                        <span><i class="fas fa-user-tie" style="margin-right:6px;"></i>{{ topic.teacher.real_name|default:topic.teacher.username }}</span>
+                        <span><i class="fas fa-users" style="margin-right:6px;"></i>{{ topic.current_students }}/{{ topic.max_students }} 人</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fas fa-edit" style="margin-right:8px;"></i>填写申请</span>
+        </div>
+        <div class="card-body" style="padding:32px;">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">申请理由<span class="required">*</span></label>
+                    <textarea name="reason" class="form-control" rows="6" placeholder="请说明您选择此题目的原因、您的相关背景和能力、对该课题的理解和想法等..." required>{{ form.reason.value|default:'' }}</textarea>
+                    {% if form.reason.errors %}<div style="color:var(--danger);font-size:13px;margin-top:8px;">{{ form.reason.errors.0 }}</div>{% endif %}
+                    <div class="form-hint">认真填写申请理由可以提高通过率，建议包含：选择原因、相关经验、研究计划等</div>
+                </div>
+                <div style="display:flex;gap:16px;margin-top:32px;padding-top:24px;border-top:1px solid var(--border-color);">
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-paper-plane"></i>提交申请</button>
+                    <a href="{% url 'topics:detail' topic.id %}" class="btn btn-secondary btn-lg">返回</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+﻿{% extends 'base.html' %}
+{% block title %}用户管理 - 论文选题系统{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+    <div>
+        <h1 class="page-title">用户管理</h1>
+        <p class="page-subtitle">管理系统中的教师和学生账号</p>
+    </div>
+    <a href="{% url 'accounts:admin_user_create' %}" class="btn btn-primary"><i class="fas fa-user-plus"></i>添加用户</a>
+</div>
+<div class="card" style="margin-bottom:24px;">
+    <div class="card-body" style="padding:16px 24px;">
+        <div style="display:flex;gap:12px;">
+            <a href="{% url 'accounts:admin_user_list' %}" class="btn {% if not role_filter %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">全部</a>
+            <a href="{% url 'accounts:admin_user_list' %}?role=teacher" class="btn {% if role_filter == 'teacher' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">教师</a>
+            <a href="{% url 'accounts:admin_user_list' %}?role=student" class="btn {% if role_filter == 'student' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">学生</a>
+        </div>
+    </div>
+</div>
+{% if users %}
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>用户名</th>
+                <th>姓名</th>
+                <th style="width:100px;">角色</th>
+                <th style="width:120px;">学号/工号</th>
+                <th style="width:120px;">创建时间</th>
+                <th style="width:120px;">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td style="font-weight:500;">{{ u.username }}</td>
+                <td>{{ u.real_name }}</td>
+                <td>{% if u.is_teacher %}<span class="badge badge-info">教师</span>{% else %}<span class="badge badge-success">学生</span>{% endif %}</td>
+                <td>{% if u.is_teacher %}{{ u.teacher_id|default:"-" }}{% else %}{{ u.student_id|default:"-" }}{% endif %}</td>
+                <td style="color:var(--text-secondary);">{{ u.created_at|date:"Y-m-d" }}</td>
+                <td>
+                    <div style="display:flex;gap:8px;">
+                        <a href="{% url 'accounts:admin_user_edit' u.id %}" class="btn btn-ghost btn-sm" title="编辑"><i class="fas fa-edit"></i></a>
+                        <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger);" title="删除" onclick="showDeleteModal('{{ u.id }}', '{{ u.real_name|escapejs }}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% if users.has_other_pages %}
+<div style="display:flex;justify-content:center;margin-top:24px;gap:8px;">
+    {% if users.has_previous %}<a href="?{% if role_filter %}role={{ role_filter }}&{% endif %}page={{ users.previous_page_number }}" class="btn btn-secondary btn-sm">上一页</a>{% endif %}
+    <span style="padding:8px 16px;color:var(--text-secondary);">第 {{ users.number }} / {{ users.paginator.num_pages }} 页</span>
+    {% if users.has_next %}<a href="?{% if role_filter %}role={{ role_filter }}&{% endif %}page={{ users.next_page_number }}" class="btn btn-secondary btn-sm">下一页</a>{% endif %}
+</div>
+{% endif %}
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-icon"><i class="fas fa-users"></i></div>
+        <h3 class="empty-title">暂无用户</h3>
+        <p class="empty-desc">点击上方按钮添加新用户</p>
+    </div>
+</div>
+{% endif %}
+
+<div id="deleteModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:16px;padding:32px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div style="width:64px;height:64px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+            <i class="fas fa-trash" style="font-size:24px;color:#dc2626;"></i>
+        </div>
+        <h3 style="margin:0 0 12px;font-size:20px;color:var(--text-primary);">确认删除</h3>
+        <p style="margin:0 0 24px;color:var(--text-secondary);font-size:14px;">确定要删除用户「<span id="deleteUserName"></span>」吗？此操作不可撤销。</p>
+        <div style="display:flex;gap:12px;justify-content:center;">
+            <button type="button" class="btn btn-secondary" onclick="hideDeleteModal()">取消</button>
+            <form id="deleteForm" method="post" style="display:inline;">{% csrf_token %}<button type="submit" class="btn btn-primary" style="background:#dc2626;">确认删除</button></form>
+        </div>
+    </div>
+</div>
+
+<script>
+function showDeleteModal(id, name) {
+    document.getElementById('deleteUserName').textContent = name;
+    document.getElementById('deleteForm').action = '/accounts/admin/users/' + id + '/delete/';
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+function hideDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+}
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) hideDeleteModal();
+});
+</script>
+{% endblock %}

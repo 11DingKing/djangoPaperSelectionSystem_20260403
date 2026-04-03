@@ -1,0 +1,105 @@
+﻿{% extends 'base.html' %}
+{% block title %}待审批 - 论文选题系统{% endblock %}
+{% block extra_css %}
+<style>
+.approval-card{background:var(--bg-primary);border:1px solid var(--border-color);border-radius:var(--radius-lg);overflow:hidden;transition:all 0.3s;}
+.approval-card:hover{box-shadow:var(--shadow-md);border-color:var(--border-light);}
+.approval-header{padding:20px 24px;border-bottom:1px solid var(--border-color);background:var(--bg-secondary);display:flex;justify-content:space-between;align-items:center;}
+.approval-topic{font-weight:600;font-size:15px;color:var(--text-primary);}
+.approval-body{padding:24px;}
+.approval-student{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.approval-avatar{width:52px;height:52px;background:linear-gradient(135deg,#4facfe,#00f2fe);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:20px;font-weight:600;}
+.approval-name{font-weight:600;font-size:16px;color:var(--text-primary);margin-bottom:4px;}
+.approval-meta{font-size:13px;color:var(--text-tertiary);}
+.approval-reason{background:var(--bg-secondary);border-radius:12px;padding:16px 20px;margin-bottom:16px;}
+.approval-reason-label{font-size:12px;color:var(--text-tertiary);margin-bottom:8px;font-weight:500;}
+.approval-reason-text{font-size:14px;color:var(--text-secondary);line-height:1.7;}
+.approval-time{font-size:13px;color:var(--text-tertiary);}
+.approval-actions{padding:16px 24px;border-top:1px solid var(--border-color);background:var(--bg-secondary);display:flex;gap:12px;}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:200;display:none;}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-primary);border-radius:var(--radius-lg);width:90%;max-width:480px;z-index:201;display:none;box-shadow:var(--shadow-xl);}
+.modal-header{padding:24px 24px 0;}
+.modal-title{font-size:18px;font-weight:600;}
+.modal-body{padding:24px;}
+.modal-footer{padding:16px 24px 24px;display:flex;justify-content:flex-end;gap:12px;}
+.modal-backdrop.show,.modal.show{display:block;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">待审批申请</h1>
+    <p class="page-subtitle">审核学生的选题申请</p>
+</div>
+{% if pending_count > 0 %}
+<div class="grid grid-2">
+    {% for selection in selections %}
+    {% if selection.status_name == 'pending' %}
+    <div class="approval-card">
+        <div class="approval-header">
+            <span class="approval-topic">{{ selection.topic.title|truncatechars:28 }}</span>
+            <span class="badge badge-warning">待审批</span>
+        </div>
+        <div class="approval-body">
+            <div class="approval-student">
+                <div class="approval-avatar">{{ selection.student.real_name|default:selection.student.username|slice:":1"|upper }}</div>
+                <div>
+                    <div class="approval-name">{{ selection.student.real_name|default:selection.student.username }}</div>
+                    <div class="approval-meta">{{ selection.student.employee_id|default:"" }} {{ selection.student.department|default:"" }}</div>
+                </div>
+            </div>
+            <div class="approval-reason">
+                <div class="approval-reason-label">申请理由</div>
+                <div class="approval-reason-text">{{ selection.reason|default:"未填写"|truncatechars:150 }}</div>
+            </div>
+            <div class="approval-time"><i class="fas fa-clock" style="margin-right:6px;"></i>{{ selection.created_at|date:"Y-m-d H:i" }}</div>
+        </div>
+        <div class="approval-actions">
+            <form method="post" action="{% url 'selections:approve' selection.id %}" style="flex:1;">{% csrf_token %}<button type="submit" class="btn btn-success" style="width:100%;"><i class="fas fa-check"></i>通过申请</button></form>
+            <button type="button" class="btn btn-danger" style="flex:1;" onclick="showRejectModal({{ selection.id }}, '{{ selection.student.real_name|default:selection.student.username|escapejs }}')"><i class="fas fa-times"></i>拒绝申请</button>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+<div class="modal-backdrop" id="modalBackdrop" onclick="hideRejectModal()"></div>
+<div class="modal" id="rejectModal">
+    <div class="modal-header"><h3 class="modal-title">拒绝申请</h3></div>
+    <form method="post" id="rejectForm">
+        {% csrf_token %}
+        <div class="modal-body">
+            <p style="margin-bottom:20px;color:var(--text-secondary);">确定要拒绝 <strong id="rejectStudentName" style="color:var(--text-primary);"></strong> 的申请吗？</p>
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">拒绝原因（选填）</label>
+                <textarea name="comment" class="form-control" rows="3" placeholder="请输入拒绝原因，帮助学生了解情况..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="hideRejectModal()">取消</button>
+            <button type="submit" class="btn btn-danger">确认拒绝</button>
+        </div>
+    </form>
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+        <h3 class="empty-title">暂无待审批申请</h3>
+        <p class="empty-desc">当有学生申请您的论文题目时，会在这里显示</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block extra_js %}
+<script>
+function showRejectModal(id, name) {
+    document.getElementById('rejectForm').action = '/selections/' + id + '/reject/';
+    document.getElementById('rejectStudentName').textContent = name;
+    document.getElementById('modalBackdrop').classList.add('show');
+    document.getElementById('rejectModal').classList.add('show');
+}
+function hideRejectModal() {
+    document.getElementById('modalBackdrop').classList.remove('show');
+    document.getElementById('rejectModal').classList.remove('show');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}{% if is_edit %}编辑用户{% else %}添加用户{% endif %} - 论文选题系统{% endblock %}
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'accounts:admin_user_list' %}"><i class="fas fa-arrow-left" style="margin-right:6px;"></i>返回列表</a>
+    <span>/</span>
+    <span>{% if is_edit %}编辑用户{% else %}添加用户{% endif %}</span>
+</div>
+<div style="max-width:600px;margin:0 auto;">
+    <div class="page-header">
+        <h1 class="page-title">{% if is_edit %}编辑用户{% else %}添加用户{% endif %}</h1>
+        <p class="page-subtitle">{% if is_edit %}修改用户信息{% else %}创建新的教师或学生账号{% endif %}</p>
+    </div>
+    <div class="card">
+        <div class="card-body" style="padding:32px;">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">用户名<span class="required">*</span></label>
+                    <input type="text" name="username" class="form-control" value="{{ form.username.value|default:'' }}" placeholder="用于登录的用户名" required {% if is_edit %}readonly style="background:var(--bg-tertiary);color:var(--text-tertiary);cursor:not-allowed;"{% endif %}>
+                    {% if form.username.errors %}<div style="color:var(--danger);font-size:13px;margin-top:8px;">{{ form.username.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">密码{% if not is_edit %}<span class="required">*</span>{% endif %}</label>
+                    <input type="password" name="password" class="form-control" placeholder="{% if is_edit %}留空则不修改密码{% else %}请输入密码{% endif %}" {% if not is_edit %}required{% endif %}>
+                    {% if form.password.errors %}<div style="color:var(--danger);font-size:13px;margin-top:8px;">{{ form.password.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">真实姓名<span class="required">*</span></label>
+                    <input type="text" name="real_name" class="form-control" value="{{ form.real_name.value|default:'' }}" placeholder="用户的真实姓名" required>
+                    {% if form.real_name.errors %}<div style="color:var(--danger);font-size:13px;margin-top:8px;">{{ form.real_name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">角色<span class="required">*</span></label>
+                    <select name="role" class="form-control" required>
+                        <option value="1" {% if form.role.value == 1 or form.role.value == '1' %}selected{% endif %}>学生</option>
+                        <option value="2" {% if form.role.value == 2 or form.role.value == '2' %}selected{% endif %}>教师</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">学号</label>
+                    <input type="text" name="student_id" class="form-control" value="{{ form.student_id.value|default:'' }}" placeholder="学生填写">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">工号</label>
+                    <input type="text" name="teacher_id" class="form-control" value="{{ form.teacher_id.value|default:'' }}" placeholder="教师填写">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">手机号</label>
+                    <input type="text" name="phone" class="form-control" value="{{ form.phone.value|default:'' }}" placeholder="选填，11位手机号">
+                    {% if form.phone.errors %}<div style="color:var(--danger);font-size:13px;margin-top:8px;">{{ form.phone.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">邮箱</label>
+                    <input type="email" name="email" class="form-control" value="{{ form.email.value|default:'' }}" placeholder="选填">
+                    {% if form.email.errors %}<div style="color:var(--danger);font-size:13px;margin-top:8px;">{{ form.email.errors.0 }}</div>{% endif %}
+                </div>
+                <div style="display:flex;gap:16px;margin-top:32px;padding-top:24px;border-top:1px solid var(--border-color);">
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save"></i>{% if is_edit %}保存修改{% else %}创建用户{% endif %}</button>
+                    <a href="{% url 'accounts:admin_user_list' %}" class="btn btn-secondary btn-lg">取消</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

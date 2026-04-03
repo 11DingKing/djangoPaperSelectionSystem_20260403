@@ -1,0 +1,91 @@
+﻿{% extends 'base.html' %}
+{% block title %}我的题目 - 论文选题系统{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+    <div>
+        <h1 class="page-title">我的题目</h1>
+        <p class="page-subtitle">管理您发布的论文题目</p>
+    </div>
+    <a href="{% url 'topics:create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i>发布新题目
+    </a>
+</div>
+{% if topics %}
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>题目名称</th>
+                <th style="width:140px;">选题进度</th>
+                <th style="width:120px;">发布时间</th>
+                <th style="width:120px;">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for topic in topics %}
+            <tr>
+                <td>
+                    <a href="{% url 'topics:detail' topic.id %}" style="font-weight:600;color:var(--text-primary);">{{ topic.title }}</a>
+                    <div style="font-size:13px;color:var(--text-tertiary);margin-top:4px;">{{ topic.description|truncatechars:50 }}</div>
+                </td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="flex:1;height:8px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden;">
+                            <div style="width:{% widthratio topic.current_students topic.max_students 100 %}%;height:100%;background:{% if topic.current_students >= topic.max_students %}var(--danger){% else %}linear-gradient(90deg,#6366f1,#8b5cf6){% endif %};border-radius:4px;"></div>
+                        </div>
+                        <span style="font-size:13px;font-weight:500;color:var(--text-secondary);">{{ topic.current_students }}/{{ topic.max_students }}</span>
+                    </div>
+                </td>
+                <td style="color:var(--text-secondary);">{{ topic.created_at|date:"Y-m-d" }}</td>
+                <td>
+                    <div style="display:flex;gap:8px;">
+                        <a href="{% url 'topics:edit' topic.id %}" class="btn btn-ghost btn-sm" title="编辑"><i class="fas fa-edit"></i></a>
+                        <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger);" title="删除" onclick="showDeleteModal('{{ topic.id }}', '{{ topic.title|escapejs }}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-icon"><i class="fas fa-folder-open"></i></div>
+        <h3 class="empty-title">还没有发布题目</h3>
+        <p class="empty-desc">点击下方按钮发布您的第一个论文题目</p>
+        <a href="{% url 'topics:create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>发布新题目
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<div id="deleteModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:16px;padding:32px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div style="width:64px;height:64px;background:var(--danger-light,#fee2e2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+            <i class="fas fa-trash" style="font-size:24px;color:var(--danger);"></i>
+        </div>
+        <h3 style="margin:0 0 12px;font-size:20px;color:var(--text-primary);">确认删除</h3>
+        <p style="margin:0 0 24px;color:var(--text-secondary);font-size:14px;">确定要删除题目「<span id="deleteTopicTitle"></span>」吗？此操作不可撤销。</p>
+        <div style="display:flex;gap:12px;justify-content:center;">
+            <button type="button" class="btn btn-secondary" onclick="hideDeleteModal()">取消</button>
+            <form id="deleteForm" method="post" style="display:inline;">{% csrf_token %}<button type="submit" class="btn btn-primary" style="background:var(--danger);">确认删除</button></form>
+        </div>
+    </div>
+</div>
+
+<script>
+function showDeleteModal(id, title) {
+    document.getElementById('deleteTopicTitle').textContent = title;
+    document.getElementById('deleteForm').action = '/topics/' + id + '/delete/';
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+function hideDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+}
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) hideDeleteModal();
+});
+</script>
+{% endblock %}

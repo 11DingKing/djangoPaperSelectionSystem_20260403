@@ -1,0 +1,48 @@
+﻿{% extends 'base.html' %}
+{% block title %}{% if form.instance.pk %}编辑题目{% else %}发布题目{% endif %} - 论文选题系统{% endblock %}
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'topics:teacher_list' %}"><i class="fas fa-arrow-left" style="margin-right:6px;"></i>返回列表</a>
+    <span>/</span>
+    <span>{% if form.instance.pk %}编辑题目{% else %}发布新题目{% endif %}</span>
+</div>
+<div style="max-width:720px;margin:0 auto;">
+    <div class="page-header">
+        <h1 class="page-title">{% if form.instance.pk %}编辑题目{% else %}发布新题目{% endif %}</h1>
+        <p class="page-subtitle">{% if form.instance.pk %}修改论文题目信息{% else %}创建一个新的论文题目供学生选择{% endif %}</p>
+    </div>
+    <div class="card">
+        <div class="card-body" style="padding:40px;">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">题目名称<span class="required">*</span></label>
+                    <input type="text" name="title" class="form-control" value="{{ form.title.value|default:'' }}" placeholder="请输入论文题目名称" required>
+                    {% if form.title.errors %}<div style="color:var(--danger);font-size:13px;margin-top:8px;">{{ form.title.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">题目描述<span class="required">*</span></label>
+                    <textarea name="description" class="form-control" rows="6" placeholder="详细描述论文题目的研究内容、背景和目标..." required>{{ form.description.value|default:'' }}</textarea>
+                    {% if form.description.errors %}<div style="color:var(--danger);font-size:13px;margin-top:8px;">{{ form.description.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">要求说明</label>
+                    <textarea name="requirements" class="form-control" rows="4" placeholder="对学生的要求，如专业背景、技能要求等（选填）">{{ form.requirements.value|default:'' }}</textarea>
+                    <div class="form-hint">可以说明对学生的专业背景、技能等方面的要求</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">最大选题人数<span class="required">*</span></label>
+                    <input type="number" name="max_students" class="form-control" value="{{ form.max_students.value|default:1 }}" min="1" max="10" style="width:140px;" required>
+                    <div class="form-hint">设置可以选择此题目的最大学生人数（1-10人）</div>
+                </div>
+                <div style="display:flex;gap:16px;margin-top:40px;padding-top:32px;border-top:1px solid var(--border-color);">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i>{% if form.instance.pk %}保存修改{% else %}发布题目{% endif %}
+                    </button>
+                    <a href="{% url 'topics:teacher_list' %}" class="btn btn-secondary btn-lg">取消</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

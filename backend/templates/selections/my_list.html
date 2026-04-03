@@ -1,0 +1,91 @@
+﻿{% extends 'base.html' %}
+{% block title %}我的申请 - 论文选题系统{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+    <div>
+        <h1 class="page-title">我的申请</h1>
+        <p class="page-subtitle">查看和管理您的选题申请</p>
+    </div>
+    <a href="{% url 'topics:list' %}" class="btn btn-primary"><i class="fas fa-compass"></i>浏览更多题目</a>
+</div>
+{% if selections %}
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>题目名称</th>
+                <th style="width:150px;">指导教师</th>
+                <th style="width:100px;">状态</th>
+                <th style="width:120px;">申请时间</th>
+                <th style="width:100px;">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for selection in selections %}
+            <tr>
+                <td><a href="{% url 'topics:detail' selection.topic.id %}" style="font-weight:600;color:var(--text-primary);">{{ selection.topic.title }}</a></td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:32px;height:32px;background:linear-gradient(135deg,#f093fb,#f5576c);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:600;">{{ selection.topic.teacher.real_name|default:selection.topic.teacher.username|slice:":1"|upper }}</div>
+                        <span>{{ selection.topic.teacher.real_name|default:selection.topic.teacher.username }}</span>
+                    </div>
+                </td>
+                <td>
+                    {% if selection.status_name == 'pending' %}<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#fef3c7;color:#b45309;border-radius:20px;font-size:13px;font-weight:500;white-space:nowrap;"><i class="fas fa-clock"></i>待审批</span>{% elif selection.status_name == 'approved' %}<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#d1fae5;color:#047857;border-radius:20px;font-size:13px;font-weight:500;white-space:nowrap;"><i class="fas fa-check-circle"></i>已通过</span>{% else %}<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#fee2e2;color:#dc2626;border-radius:20px;font-size:13px;font-weight:500;white-space:nowrap;"><i class="fas fa-times-circle"></i>已拒绝</span>{% endif %}
+                </td>
+                <td style="color:var(--text-secondary);white-space:nowrap;">{{ selection.created_at|date:"Y-m-d" }}</td>
+                <td>
+                    {% if selection.status_name == 'pending' %}<button type="button" style="display:inline-flex;align-items:center;gap:4px;background:#fee2e2;color:#dc2626;border:none;padding:6px 14px;border-radius:6px;font-size:13px;cursor:pointer;white-space:nowrap;" onclick="showCancelModal('{{ selection.id }}', '{{ selection.topic.title|escapejs }}')"><i class="fas fa-times"></i>取消</button>{% else %}<span style="color:var(--text-tertiary);">-</span>{% endif %}
+                </td>
+            </tr>
+            {% if selection.status_name == 'rejected' and selection.reject_reason %}
+            <tr>
+                <td colspan="5" style="background:#fef2f2;padding:14px 20px;border-bottom:1px solid var(--border-color);">
+                    <span style="color:var(--text-tertiary);font-size:13px;"><i class="fas fa-comment-alt" style="margin-right:8px;"></i>拒绝原因：</span>
+                    <span style="color:#dc2626;font-size:13px;">{{ selection.reject_reason }}</span>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-icon"><i class="fas fa-file-alt"></i></div>
+        <h3 class="empty-title">还没有申请记录</h3>
+        <p class="empty-desc">浏览论文题目并提交您的选题申请</p>
+        <a href="{% url 'topics:list' %}" class="btn btn-primary"><i class="fas fa-compass"></i>浏览题目</a>
+    </div>
+</div>
+{% endif %}
+
+<div id="cancelModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:16px;padding:32px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div style="width:64px;height:64px;background:#fef3c7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+            <i class="fas fa-exclamation-triangle" style="font-size:24px;color:#f59e0b;"></i>
+        </div>
+        <h3 style="margin:0 0 12px;font-size:20px;color:var(--text-primary);">确认取消</h3>
+        <p style="margin:0 0 24px;color:var(--text-secondary);font-size:14px;">确定要取消申请「<span id="cancelTopicTitle"></span>」吗？</p>
+        <div style="display:flex;gap:12px;justify-content:center;">
+            <button type="button" class="btn btn-secondary" onclick="hideCancelModal()">返回</button>
+            <form id="cancelForm" method="post" style="display:inline;">{% csrf_token %}<button type="submit" class="btn btn-primary" style="background:#dc2626;">确认取消</button></form>
+        </div>
+    </div>
+</div>
+
+<script>
+function showCancelModal(id, title) {
+    document.getElementById('cancelTopicTitle').textContent = title;
+    document.getElementById('cancelForm').action = '/selections/' + id + '/cancel/';
+    document.getElementById('cancelModal').style.display = 'flex';
+}
+function hideCancelModal() {
+    document.getElementById('cancelModal').style.display = 'none';
+}
+document.getElementById('cancelModal').addEventListener('click', function(e) {
+    if (e.target === this) hideCancelModal();
+});
+</script>
+{% endblock %}
